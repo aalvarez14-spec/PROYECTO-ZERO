@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<!-- Declara que este documento usa HTML5 -->
+<html lang="es">
+<!-- lang="es" indica que el contenido está en español (ayuda a lectores de pantalla y SEO) -->
+<head>
+<meta charset="UTF-8">
+<!-- UTF-8 permite caracteres especiales: tildes, ñ, emojis -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Hace que la página sea responsive: se adapta al ancho del dispositivo -->
+<title>EcoMerce - Tienda de consolas</title>
+<!-- Título que aparece en la pestaña del navegador (se actualiza dinámicamente con JS) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Preconexiones a Google Fonts para cargar las fuentes más rápido -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@400;700&display=swap" rel="stylesheet">
+<!-- Carga dos fuentes:
+     - Press Start 2P: fuente pixelada para títulos y elementos de estilo retro/gaming
+     - Rajdhani: fuente moderna para el texto general del sitio -->
+<link rel="stylesheet" href="estilos.css">
+<!-- Vincula el archivo de estilos principal del proyecto -->
+</head>
+<body>
+
+<main>
+<!-- Contenedor principal de toda la aplicación.
+     Todas las pantallas (vistas) viven aquí como secciones hermanas.
+     Solo una sección tiene la clase "activa" a la vez — el JS controla cuál se muestra. -->
+
+  <!-- ============================================================
+       PANTALLA 1: INICIO
+       Primera pantalla que ve el usuario al abrir la app.
+       Muestra el logo de fondo y dos botones de acceso.
+       ============================================================ -->
+  <section id="vista-inicio" class="vista activa inicio">
+  <!-- id="vista-inicio": el JS usa este ID para mostrar/ocultar esta pantalla -->
+  <!-- class="activa": esta es la pantalla visible por defecto al cargar -->
+  <!-- class="inicio": aplica estilos especiales de pantalla completa (fondo full) -->
+
+    <img class="control" src="imagenes/logo.jpeg" alt="Logo de EcoMerce"
+         onerror="this.hidden=true;this.nextElementSibling.hidden=false">
+    <!-- Logo de fondo a pantalla completa.
+         onerror: si la imagen no carga, se oculta y muestra el párrafo de respaldo -->
+
+    <p class="control" hidden>Agrega tu logo en <b>imagenes/logo.jpeg</b></p>
+    <!-- Mensaje de respaldo si el logo no existe. hidden lo mantiene oculto por defecto -->
+
+    <div class="acciones">
+    <!-- Contenedor de los botones de acción, posicionado en la parte inferior central -->
+      <button class="btn btn-secundario" data-ir="login">Iniciar sesión</button>
+      <!-- data-ir="login": el listener global en JS detecta este atributo
+           y navega a la vista con id="vista-login" al hacer clic -->
+      <button class="btn btn-primario" data-ir="registro">Registrarse</button>
+      <!-- Navega a la vista de registro -->
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PANTALLA 2: REGISTRO
+       Formulario para crear una nueva cuenta.
+       Valida: nombre completo, correo único, contraseña segura.
+       novalidate: desactiva la validación nativa del navegador
+       (usamos nuestra propia validación en JS para mejor control).
+       ============================================================ -->
+  <section id="vista-registro" class="vista">
+    <div class="tarjeta">
+    <!-- .tarjeta: caja centrada con fondo oscuro, borde superior morado y sombra -->
+      <h2>Registrarse</h2>
+      <p class="sub">Crea tu cuenta para comprar en la tienda.</p>
+      <form id="form-registro" novalidate>
+
+        <!-- Campo: Nombre y apellidos -->
+        <div class="campo">
+        <!-- .campo: contenedor del label + input + mensaje de error.
+             JS agrega .valido o .invalido según la validación -->
+          <label for="nombre">Nombre y apellidos</label>
+          <input type="text" id="nombre" autocomplete="name" placeholder="Ej: Juan Pérez">
+          <!-- autocomplete="name": sugiere nombres guardados en el navegador -->
+          <div class="msg-error"></div>
+          <!-- El JS escribe aquí el mensaje de error cuando el campo es inválido -->
+        </div>
+
+        <!-- Campo: Correo electrónico -->
+        <div class="campo">
+          <label for="correo">Correo electrónico</label>
+          <input type="email" id="correo" autocomplete="email" placeholder="Ej: juan@correo.com">
+          <div class="msg-error"></div>
+        </div>
+
+        <!-- Campo: Contraseña con botón de mostrar/ocultar -->
+        <div class="campo">
+          <label for="clave">Contraseña</label>
+          <div class="campo-password-wrap">
+          <!-- Wrapper que posiciona el botón ojo sobre el input -->
+            <input type="password" id="clave" autocomplete="new-password" placeholder="Mínimo 8 caracteres y números">
+            <!-- autocomplete="new-password": indica al navegador que es una contraseña nueva -->
+            <button type="button" class="toggle-clave" data-target="clave" aria-label="Mostrar contraseña">👁</button>
+            <!-- data-target="clave": el JS usa este atributo para saber qué input controlar -->
+          </div>
+          <div class="msg-error"></div>
+        </div>
+
+        <!-- Campo: Confirmar contraseña -->
+        <div class="campo">
+          <label for="clave2">Confirmar contraseña</label>
+          <div class="campo-password-wrap">
+            <input type="password" id="clave2" autocomplete="new-password" placeholder="Repite tu contraseña">
+            <button type="button" class="toggle-clave" data-target="clave2" aria-label="Mostrar contraseña">👁</button>
+          </div>
+          <div class="msg-error"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primario">Registrarse</button>
+        <!-- Al hacer submit, el JS valida todos los campos antes de crear la cuenta -->
+      </form>
+      <p class="enlace">¿Ya tienes una cuenta? <a data-ir="login" tabindex="0">Iniciar sesión</a></p>
+      <!-- tabindex="0": hace el enlace navegable con teclado (Tab) -->
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PANTALLA 3: INICIO DE SESIÓN
+       Verifica correo y contraseña contra las cuentas guardadas.
+       Incluye opción de mantener la sesión y enlace para recuperar.
+       ============================================================ -->
+  <section id="vista-login" class="vista">
+    <div class="tarjeta">
+      <h2>Iniciar sesión</h2>
+      <p class="sub">Ingresa con tu correo y contraseña.</p>
+
+      <div id="aviso-registro" class="aviso" hidden>Tu cuenta fue registrada. Ya puedes iniciar sesión.</div>
+      <!-- Aparece cuando el usuario viene de registrarse exitosamente.
+           También se usa para confirmar el cambio de contraseña. -->
+
+      <div id="aviso-login" class="aviso-error" role="alert" hidden></div>
+      <!-- role="alert": los lectores de pantalla anuncian el error automáticamente.
+           El JS escribe aquí el mensaje cuando el correo o contraseña son incorrectos. -->
+
+      <form id="form-login" novalidate>
+        <div class="campo">
+          <label for="login-correo">Correo</label>
+          <input type="email" id="login-correo" autocomplete="email">
+          <div class="msg-error"></div>
+        </div>
+        <div class="campo">
+          <label for="login-clave">Contraseña</label>
+          <div class="campo-password-wrap">
+            <input type="password" id="login-clave" autocomplete="current-password">
+            <!-- autocomplete="current-password": sugiere contraseñas guardadas del sitio -->
+            <button type="button" class="toggle-clave" data-target="login-clave" aria-label="Mostrar contraseña">👁</button>
+          </div>
+          <div class="msg-error"></div>
+        </div>
+        <div class="opciones">
+          <label><input type="checkbox" id="mantener"> Mantener sesión iniciada</label>
+          <!-- Si está marcado, el correo se guarda en localStorage para auto-login -->
+          <a data-ir="recuperar" tabindex="0">¿Olvidó su contraseña?</a>
+          <!-- Navega a la vista de recuperación de contraseña -->
+        </div>
+        <button type="submit" class="btn btn-secundario btn-izq">Iniciar sesión</button>
+        <!-- btn-izq: alinea el botón a la izquierda (no ocupa todo el ancho) -->
+      </form>
+      <p class="enlace">¿No tienes cuenta? <a data-ir="registro" tabindex="0">Registrarse</a></p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PANTALLA 4: RECUPERAR CONTRASEÑA
+       Flujo en dos pasos:
+       - form-recuperar: el usuario escribe su correo registrado
+       - form-nueva: (oculto) aparece si el correo existe y permite
+         escribir y confirmar la nueva contraseña
+       ============================================================ -->
+  <section id="vista-recuperar" class="vista">
+    <div class="tarjeta">
+      <h2>Recuperar contraseña</h2>
+      <p class="sub">Escribe el correo con el que te registraste.</p>
+
+      <!-- PASO 1: Verificar correo -->
+      <form id="form-recuperar" novalidate>
+        <div class="campo">
+          <label for="rec-correo">Correo registrado</label>
+          <input type="email" id="rec-correo" autocomplete="email">
+          <div class="msg-error"></div>
+        </div>
+        <button type="submit" class="btn btn-secundario" id="rec-continuar">Continuar</button>
+      </form>
+
+      <!-- PASO 2: Nueva contraseña (oculto hasta verificar el correo) -->
+      <form id="form-nueva" novalidate hidden>
+      <!-- hidden: este formulario se oculta/muestra por JS según el resultado del paso 1 -->
+        <div class="aviso">Correo verificado. Crea tu nueva contraseña.</div>
+        <div class="campo">
+          <label for="rec-clave">Nueva contraseña</label>
+          <div class="campo-password-wrap">
+            <input type="password" id="rec-clave" autocomplete="new-password">
+            <button type="button" class="toggle-clave" data-target="rec-clave" aria-label="Mostrar contraseña">👁</button>
+          </div>
+          <div class="msg-error"></div>
+        </div>
+        <div class="campo">
+          <label for="rec-clave2">Confirmar nueva contraseña</label>
+          <div class="campo-password-wrap">
+            <input type="password" id="rec-clave2" autocomplete="new-password">
+            <button type="button" class="toggle-clave" data-target="rec-clave2" aria-label="Mostrar contraseña">👁</button>
+          </div>
+          <div class="msg-error"></div>
+        </div>
+        <button type="submit" class="btn btn-primario">Cambiar contraseña</button>
+      </form>
+      <p class="enlace"><a data-ir="login" tabindex="0">Volver a iniciar sesión</a></p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PANTALLA 5: DETALLE DEL PRODUCTO
+       Se abre al hacer clic en una tarjeta de producto.
+       Muestra imagen, información completa, evaluaciones
+       y los botones de agregar al carrito y evaluar.
+       ============================================================ -->
+  <section id="vista-detalle" class="vista">
+    <div class="detalle-contenedor">
+
+      <button class="btn-volver" id="btn-volver-detalle" type="button">← Volver</button>
+      <!-- El JS navega de vuelta a la vista de origen (principal o resultados) -->
+
+      <div class="detalle-producto">
+      <!-- Grid de dos columnas: imagen a la izquierda, info a la derecha -->
+
+        <!-- Columna izquierda: imagen del producto -->
+        <div class="detalle-imagen-wrap">
+          <img id="detalle-img" class="detalle-img" src="" alt="">
+          <!-- src y alt se llenan dinámicamente por JS al abrir el detalle -->
+          <div id="detalle-icono" class="detalle-icono" style="display:none"></div>
+          <!-- Fallback con emoji de color si la imagen no carga -->
+          <span id="detalle-etiqueta" class="etiqueta" hidden></span>
+          <!-- Badge de descuento (ej: "-25%"). Solo visible si el producto tiene etiqueta -->
+        </div>
+
+        <!-- Columna derecha: información del producto -->
+        <div class="detalle-info">
+          <p id="detalle-cat" class="detalle-cat"></p>
+          <!-- Categoría en mayúsculas (ej: "CONSOLAS") -->
+          <h2 id="detalle-nombre" class="detalle-nombre"></h2>
+          <!-- Nombre completo del producto -->
+          <div class="detalle-meta">
+            <span id="detalle-marca" class="detalle-badge badge-marca"></span>
+            <!-- Badge con la marca (ej: "🏷️ Sony") -->
+            <span id="detalle-calidad" class="detalle-badge badge-calidad"></span>
+            <!-- Badge con la calidad (ej: "⭐ Nuevo") -->
+          </div>
+          <p id="detalle-precio" class="detalle-precio"></p>
+          <!-- Precio con tachado si tiene descuento. Generado por JS con HTML: <s>antes</s> ahora -->
+
+          <!-- Resumen de calificaciones del producto -->
+          <div class="detalle-resumen-eval" id="detalle-resumen-eval">
+          <!-- Oculto si el producto no tiene evaluaciones aún -->
+            <div class="resumen-estrellas" id="resumen-estrellas"></div>
+            <!-- Estrellas llenas/vacías según el promedio -->
+            <p id="resumen-texto" class="resumen-texto"></p>
+            <!-- Texto: "4.5 / 5 (3 opiniones)" -->
+          </div>
+
+          <!-- Botón para abrir el formulario de evaluación -->
+          <button class="btn btn-primario btn-evaluar" id="btn-evaluar" type="button">
+            ⭐ Evaluar producto
+          </button>
+          <!-- Visible solo si: hay sesión iniciada Y el usuario no ha evaluado ya -->
+
+          <p id="ya-evaluado-aviso" class="ya-evaluado" hidden>✔ Ya evaluaste este producto.</p>
+          <!-- Aparece si el usuario ya dejó una evaluación para este producto -->
+
+          <p id="aviso-sesion-eval" class="aviso-sesion-eval" hidden>
+            🔒 <a id="link-login-eval" href="#" tabindex="0">Inicia sesión</a> para evaluar este producto.
+          </p>
+          <!-- Aparece si el usuario NO tiene sesión iniciada -->
+
+          <button class="btn btn-carrito-detalle" id="btn-agregar-detalle" type="button">
+            🛒 Agregar al carrito
+          </button>
+          <!-- El texto cambia a "🛒 En carrito: X" si ya tiene unidades en el carrito -->
+
+          <!-- Especificaciones Técnicas del Producto -->
+          <div class="especificaciones-wrap">
+            <h3 class="titulo-especificaciones">📋 Especificaciones</h3>
+            <ul id="detalle-especificaciones" class="lista-especificaciones">
+              <!-- El JS llena las especificaciones del producto dinámicamente -->
+            </ul>
+          </div>
+
+          <!-- Descripción del Producto -->
+          <div class="descripcion-producto" id="detalle-descripcion" hidden>
+            <p class="descripcion-texto"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de evaluaciones dejadas por otros usuarios -->
+      <div class="evaluaciones-lista" id="evaluaciones-lista">
+        <h3 class="titulo-evaluaciones">Opiniones de clientes</h3>
+        <div id="lista-eval"></div>
+        <!-- El JS inserta aquí las tarjetas de evaluación de cada usuario -->
+        <p id="sin-eval" class="sin-eval-txt" hidden>Sé el primero en evaluar este producto.</p>
+        <!-- Visible cuando no hay evaluaciones para este producto -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ==============================================================================
+       PANTALLA 6: TIENDA PRINCIPAL (VISTA DE CATÁLOGO Y BÚSQUEDA)
+       Esta es la pantalla principal de la tienda a la que se accede tras iniciar
+       sesión. Su estructura sigue un diseño similar al de tiendas de e-commerce
+       modernas (Amazon / MercadoLibre):
+       - Header en dos filas:
+         * Fila 1: Logo · Buscador grande · Sesión de usuario · Carrito de compras.
+         * Fila 2: Barra de navegación con categorías y menús desplegables.
+       - Layout principal:
+         * Panel lateral de filtros (sticky): solo visible al realizar búsquedas.
+         * Área central de contenido: alterna entre vista de inicio (ofertas/nuevos)
+           y vista de resultados de búsqueda.
+       - Los productos se renderizan dinámicamente mediante JavaScript en las
+         grillas correspondientes.
+       ============================================================================== -->
+  <!-- ============================================================
+       PANTALLA 6: TIENDA PRINCIPAL
+       Vista principal después de iniciar sesión.
+       Estructura: Header (2 filas) + Layout (filtros lateral + contenido)
+       ============================================================ -->
+  <section id="vista-principal" class="vista">
+
+    <!-- =====================================================
+         HEADER EN DOS FILAS (estilo Amazon / MercadoLibre)
+         Fila 1: Logo · Buscador grande · Sesión · Carrito
+         Fila 2: Barra de categorías de navegación
+         ===================================================== -->
+    <header class="header-principal">
+
+      <!-- FILA 1 DEL HEADER -->
+      <div class="header-fila1">
+
+        <!-- Logo: clic limpia la búsqueda y vuelve al inicio de la tienda -->
+        <button class="logo header-logo" id="logo-home" type="button" aria-label="Ir al inicio">
+          <img src="imagenes/logo.jpeg" alt="" onerror="this.hidden=true">
+          <span>EcoMerce</span>
+        </button>
+
+        <!-- Buscador central: ocupa el espacio disponible entre logo y acciones -->
+        <div class="buscador-wrap">
+          <input type="text" id="buscador" class="buscador-input"
+                 placeholder="Buscar productos, marcas y más..."
+                 autocomplete="off" spellcheck="false" inputmode="search">
+          <!-- inputmode="search": muestra teclado de búsqueda en móviles (lupa en lugar de Enter) -->
+          <!-- autocomplete="off": no sugiere búsquedas anteriores -->
+          <button class="buscador-btn" id="btn-buscar" aria-label="Buscar">
+            <!-- Ícono SVG de lupa -->
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Acciones del header: nombre de usuario + carrito -->
+        <div class="header-acciones">
+          <div id="sesion" class="sesion-usuario"></div>
+          <!-- El JS inserta aquí: "Nombre · Mis pedidos · Salir" -->
+          <button class="carrito-btn" id="btn-abrir-carrito" type="button" aria-label="Ver carrito">
+            <!-- Ícono SVG de carrito de compras -->
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            <span class="carrito-label">Carrito</span>
+            <span class="carrito-badge" id="carrito-badge" hidden>0</span>
+            <!-- Badge con la cantidad de productos. Se actualiza con JS. hidden si está vacío -->
+          </button>
+        </div>
+      </div><!-- fin header-fila1 -->
+
+      <!-- FILA 2 DEL HEADER: Barra de categorías -->
+      <nav class="header-nav" aria-label="Categorías">
+
+        <!-- Consolas: filtro directo, no tiene submenú -->
+        <button class="nav-cat-btn" id="nav-consolas" type="button">🎮 Consolas</button>
+
+        <!-- Accesorios: menú desplegable con subcategorías -->
+        <div class="desplegable">
+          <button class="nav-cat-btn" type="button" aria-expanded="false" aria-haspopup="true">
+            🕹️ Accesorios
+            <!-- aria-expanded: el JS actualiza este atributo al abrir/cerrar el menú -->
+          </button>
+          <div class="menu">
+          <!-- El JS agrega/quita la clase "abierto" para mostrar/ocultar -->
+            <button type="button" data-filtro-cat="controles">🎮 Controles</button>
+            <button type="button" data-filtro-cat="auriculares">🎧 Auriculares</button>
+            <button type="button" data-filtro-cat="memorias">💾 Memorias</button>
+            <button type="button" data-filtro-cat="cargadores">⚡ Cargadores</button>
+            <button type="button" data-filtro-cat="volantes">🏎️ Volantes</button>
+            <!-- data-filtro-cat: el JS lee este valor y aplica el filtro de categoría -->
+          </div>
+        </div>
+
+        <!-- Videojuegos: menú desplegable con géneros -->
+        <div class="desplegable">
+          <button class="nav-cat-btn" type="button" aria-expanded="false" aria-haspopup="true">
+            🎯 Videojuegos
+          </button>
+          <div class="menu">
+            <button type="button" data-filtro-cat="accion">⚔️ Acción</button>
+            <button type="button" data-filtro-cat="aventura">🗺️ Aventura</button>
+            <button type="button" data-filtro-cat="deportes">⚽ Deportes</button>
+            <button type="button" data-filtro-cat="infantiles">🏎️ Infantiles</button>
+            <button type="button" data-filtro-cat="terror">👻 Terror</button>
+          </div>
+        </div>
+
+        <!-- Ofertas: busca automáticamente todos los productos con descuento -->
+        <button class="nav-cat-btn nav-oferta" id="nav-ofertas" type="button">🔥 Ofertas</button>
+      </nav>
+    </header><!-- fin header-principal -->
+
+    <!-- =====================================================
+         LAYOUT PRINCIPAL: Filtros lateral + Área de contenido
+         El panel lateral solo aparece cuando hay una búsqueda activa.
+         ===================================================== -->
+    <div class="principal-layout">
+
+      <!-- PANEL LATERAL DE FILTROS
+           Oculto por defecto (hidden). El JS lo muestra cuando hay búsqueda.
+           Es sticky: se mantiene visible mientras el usuario hace scroll. -->
+      <aside id="panel-filtros" class="panel-filtros-lateral" hidden>
+
+        <!-- Cabecera del panel: título y botón limpiar -->
+        <div class="filtros-lateral-cabeza">
+          <h3 class="filtros-titulo">Filtrar</h3>
+          <button class="btn-limpiar" id="btn-limpiar-filtros" type="button">✕ Limpiar</button>
+          <!-- Limpia todos los filtros y el buscador, vuelve al inicio -->
+        </div>
+
+        <!-- Filtro 1: Rango de precio -->
+        <div class="filtro-grupo">
+          <label class="filtro-label">💰 Rango de precio</label>
+          <div class="filtro-precio-wrap">
+            <input type="number" id="filtro-precio-min" class="filtro-input" placeholder="Mín" min="0" step="1000">
+            <span class="filtro-sep">–</span>
+            <input type="number" id="filtro-precio-max" class="filtro-input" placeholder="Máx" min="0" step="1000">
+            <!-- step="1000": el botón de incremento sube/baja de a $1.000 -->
+          </div>
+          <p id="aviso-rango-precio" class="aviso-rango-precio" hidden>⚠ El mínimo no puede ser mayor al máximo.</p>
+          <!-- Aparece si min > max. El JS bloquea la búsqueda en ese caso -->
+        </div>
+
+        <!-- Filtro 2: Categoría -->
+        <div class="filtro-grupo">
+          <label class="filtro-label" for="filtro-categoria">🗂️ Categoría</label>
+          <select id="filtro-categoria" class="filtro-select">
+            <option value="">Todas</option>
+            <optgroup label="Consolas">
+              <option value="consolas">Consolas</option>
+            </optgroup>
+            <optgroup label="Accesorios">
+              <option value="controles">Controles</option>
+              <option value="auriculares">Auriculares</option>
+              <option value="memorias">Memorias</option>
+              <option value="cargadores">Cargadores</option>
+              <option value="volantes">Volantes</option>
+            </optgroup>
+            <optgroup label="Videojuegos">
+              <option value="accion">Acción</option>
+              <option value="aventura">Aventura</option>
+              <option value="deportes">Deportes</option>
+              <option value="infantiles">Infantiles</option>
+              <option value="terror">Terror</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <!-- Filtro 3: Marca -->
+        <div class="filtro-grupo">
+          <label class="filtro-label" for="filtro-marca">🏷️ Marca</label>
+          <select id="filtro-marca" class="filtro-select">
+            <option value="">Todas</option>
+            <option value="Sony">Sony</option>
+            <option value="Microsoft">Microsoft</option>
+            <option value="Nintendo">Nintendo</option>
+            <option value="Sega">Sega</option>
+            <option value="EA">EA</option>
+            <option value="2K">2K</option>
+            <option value="Capcom">Capcom</option>
+            <option value="Konami">Konami</option>
+            <option value="Genérico">Genérico</option>
+          </select>
+        </div>
+
+        <!-- Filtro 4: Calidad / Estado del producto -->
+        <div class="filtro-grupo">
+          <label class="filtro-label" for="filtro-calidad">⭐ Calidad</label>
+          <select id="filtro-calidad" class="filtro-select">
+            <option value="">Todas</option>
+            <option value="Nuevo">Nuevo</option>
+            <option value="Reacondicionado">Reacondicionado</option>
+            <option value="Usado">Usado</option>
+          </select>
+        </div>
+
+        <!-- Filtro 5: Ordenar resultados -->
+        <div class="filtro-grupo">
+          <label class="filtro-label" for="filtro-orden">↕️ Ordenar por</label>
+          <select id="filtro-orden" class="filtro-select">
+            <option value="">Relevancia</option>
+            <option value="asc">Menor precio</option>
+            <option value="desc">Mayor precio</option>
+            <option value="rating">Mejor valorados</option>
+            <option value="nombre">Nombre (A-Z)</option>
+          </select>
+        </div>
+      </aside><!-- fin panel-filtros-lateral -->
+
+      <!-- ÁREA CENTRAL DE CONTENIDO -->
+      <div class="principal-contenido">
+
+        <!-- SECCIÓN DE RESULTADOS: visible cuando hay búsqueda activa -->
+        <div id="vista-busqueda" hidden>
+        <!-- El JS quita el "hidden" cuando el usuario busca o aplica un filtro -->
+          <div class="resultados-cabeza">
+            <h2 class="titulo-seccion">🔍 <span id="txt-busqueda"></span></h2>
+            <!-- Barra estilo Mercado Libre: contador + ordenar -->
+            <div class="resultados-barra">
+              <!-- "15 productos encontrados en Consolas de Sony" -->
+              <p id="contador-resultados" class="contador-resultados"></p>
+              <label class="orden-compacto" for="orden-resultados">
+                <span>Ordenar por</span>
+                <select id="orden-resultados" class="filtro-select">
+                  <option value="">Relevancia</option>
+                  <option value="asc">Menor precio</option>
+                  <option value="desc">Mayor precio</option>
+                  <option value="rating">Mejor valorados</option>
+                  <option value="nombre">Nombre (A-Z)</option>
+                </select>
+              </label>
+            </div>
+          </div>
+          <div class="grilla" id="resultados-busqueda"></div>
+          <!-- El JS inserta aquí las tarjetas de productos encontrados -->
+          <p id="sin-resultados" class="sin-resultados" hidden>No se encontraron productos con ese criterio.</p>
+          <!-- Visible cuando la búsqueda no retorna ningún resultado -->
+        </div>
+
+        <!-- SECCIÓN INICIO: catálogo agrupado por categorías -->
+        <div id="contenido-principal">
+          <h2 id="saludo" class="saludo-bienvenida">Bienvenido</h2>
+          <!-- El JS cambia el texto a "Hola, Juan" al entrar -->
+
+          <!-- Catálogo agrupado (estilo Amazon / Mercado Libre):
+               Ofertas · Consolas · Accesorios (por tipo) · Videojuegos (por género).
+               El JS construye cada sección con su título y su grilla. -->
+          <div id="grupos-tienda" class="grupos-tienda"></div>
+        </div><!-- fin contenido-principal -->
+
+      </div><!-- fin principal-contenido -->
+    </div><!-- fin principal-layout -->
+  </section><!-- fin vista-principal -->
+
+  <!-- ============================================================
+       PANTALLA 7: MIS PEDIDOS
+       Lista todos los pedidos realizados por el usuario en sesión.
+       Cada pedido muestra: ID, fecha, productos, total y estado.
+       ============================================================ -->
+  <section id="vista-pedidos" class="vista">
+    <div class="checkout-contenedor">
+      <button class="btn-volver" id="btn-volver-pedidos" type="button">← Volver a la tienda</button>
+      <h2 class="checkout-titulo">📦 Mis pedidos</h2>
+
+      <!-- Visible cuando el usuario no tiene pedidos aún -->
+      <div id="pedidos-vacio" class="carrito-vacio" hidden>
+        <p>📭 Aún no tienes pedidos realizados.</p>
+        <button class="btn btn-primario" id="btn-pedidos-ir-tienda" type="button">Ver productos</button>
+      </div>
+
+      <div id="pedidos-lista"></div>
+      <!-- El JS inserta aquí las tarjetas de cada pedido con su estado actual -->
+    </div>
+  </section>
+
+  <!-- ============================================================
+       MODAL: SEGUIMIENTO DEL PEDIDO (pasos 1-7 del caso de uso)
+       Se abre al hacer clic en "Ver detalle →" en un pedido.
+       Muestra la línea de tiempo del estado, guía de envío,
+       transportadora, fecha estimada y lista de productos.
+       role="dialog" y aria-modal="true": accesibilidad para modales
+       ============================================================ -->
+  <div id="modal-seguimiento" class="modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="seg-titulo">
+    <div class="modal-caja modal-seguimiento-caja" tabindex="-1">
+      <button class="modal-cerrar" id="seg-cerrar" aria-label="Cerrar">✕</button>
+
+      <h3 id="seg-titulo" class="modal-titulo">📦 Seguimiento del pedido</h3>
+      <p id="seg-numero" class="seg-numero"></p>
+      <!-- ID del pedido (ej: "PED-1699123456789") -->
+
+      <!-- Línea de tiempo: 3 pasos (Alistando → Enviado → Entregado) -->
+      <div class="seg-timeline" id="seg-timeline"></div>
+      <!-- El JS genera dinámicamente los 3 nodos con su estado (completado/activo) -->
+
+      <!-- Notificación de envío: aparece cuando el pedido ya fue enviado o entregado -->
+      <div id="seg-notificacion" class="seg-notificacion" hidden>
+        <span class="seg-notif-icono">🔔</span>
+        <p id="seg-notif-msg" class="seg-notif-txt"></p>
+        <!-- Ej: "Tu pedido fue enviado con Servientrega. Guía: SER123456." -->
+      </div>
+
+      <!-- Grid 2x2 con la información del envío -->
+      <div class="seg-info-grid">
+        <div class="seg-info-bloque">
+          <p class="seg-info-titulo">🚚 Transportadora</p>
+          <p id="seg-transportadora" class="seg-info-valor"></p>
+          <!-- Ej: "Servientrega" -->
+        </div>
+        <div class="seg-info-bloque">
+          <p class="seg-info-titulo">📋 Número de guía</p>
+          <p id="seg-guia" class="seg-info-valor seg-guia-num"></p>
+          <!-- Ej: "SER123456" (generado con las 3 primeras letras + semilla) -->
+        </div>
+        <div class="seg-info-bloque">
+          <p class="seg-info-titulo">📅 Fecha estimada</p>
+          <p id="seg-fecha-entrega" class="seg-info-valor"></p>
+          <!-- Ej: "viernes, 15 de noviembre de 2026" -->
+        </div>
+        <div class="seg-info-bloque">
+          <p class="seg-info-titulo">💳 Método de pago</p>
+          <p id="seg-metodo-pago" class="seg-info-valor"></p>
+          <!-- Ej: "💳 Tarjeta" -->
+        </div>
+      </div>
+
+      <!-- Lista de productos del pedido -->
+      <div class="seg-productos-wrap">
+        <p class="seg-info-titulo">🛒 Productos</p>
+        <div id="seg-productos"></div>
+        <!-- El JS inserta aquí: "PlayStation 5 × 1 ................. $449.000" -->
+      </div>
+
+      <!-- Resumen de totales -->
+      <div class="seg-totales" id="seg-totales"></div>
+      <!-- El JS inserta: Subtotal + Envío + Total -->
+
+      <button type="button" class="btn btn-primario seg-btn-cerrar" id="seg-btn-ok">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       PANTALLA 8: CARRITO DE COMPRAS
+       Lista los productos agregados al carrito con controles
+       de cantidad (+/-), botón eliminar y resumen de totales.
+       ============================================================ -->
+  <section id="vista-carrito" class="vista">
+    <div class="checkout-contenedor">
+      <button class="btn-volver" id="btn-volver-carrito" type="button">← Seguir comprando</button>
+      <h2 class="checkout-titulo">🛒 Tu carrito</h2>
+
+      <!-- Visible cuando el carrito está vacío -->
+      <div id="carrito-vacio" class="carrito-vacio" hidden>
+        <p>😢 Tu carrito está vacío.</p>
+        <button class="btn btn-primario" id="btn-ir-tienda" type="button">Ver productos</button>
+      </div>
+
+      <!-- Contenido del carrito (items + resumen) -->
+      <div id="carrito-contenido">
+        <div id="carrito-items"></div>
+        <!-- El JS inserta aquí cada item: imagen, nombre, precio, controles +/-, subtotal -->
+
+        <div class="carrito-resumen">
+          <div class="carrito-resumen-fila">
+            <span>Subtotal</span>
+            <span id="carrito-subtotal">$0</span>
+          </div>
+          <div class="carrito-resumen-fila carrito-total">
+            <span>Total</span>
+            <span id="carrito-total">$0</span>
+          </div>
+          <button class="btn-vaciar-carrito" id="btn-vaciar-carrito" type="button">🗑 Vaciar carrito</button>
+          <!-- Paso 3: Realizar compra -->
+          <button class="btn btn-primario btn-realizar-compra" id="btn-realizar-compra" type="button">
+            Realizar compra →
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL: Checkout multistep (pasos 4-13) -->
+  <div id="modal-checkout" class="modal-overlay modal-checkout-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="checkout-titulo">
+    <div class="modal-caja modal-checkout-caja" tabindex="-1">
+      <button class="modal-cerrar" id="checkout-cerrar" aria-label="Cerrar">✕</button>
+
+      <!-- Indicador de pasos -->
+      <div class="checkout-pasos" id="checkout-pasos">
+        <div class="checkout-paso activo" data-paso="1">
+          <span class="paso-num">1</span><span class="paso-label">Envío</span>
+        </div>
+        <div class="checkout-paso-linea"></div>
+        <div class="checkout-paso" data-paso="2">
+          <span class="paso-num">2</span><span class="paso-label">Pago</span>
+        </div>
+        <div class="checkout-paso-linea"></div>
+        <div class="checkout-paso" data-paso="3">
+          <span class="paso-num">3</span><span class="paso-label">Resumen</span>
+        </div>
+      </div>
+
+      <!-- PASO 1: Dirección de envío (pasos 4-5) -->
+      <div id="checkout-envio" class="checkout-seccion">
+        <h3 class="modal-titulo" id="checkout-titulo">📦 Dirección de envío</h3>
+        <p class="modal-subtitulo">¿A dónde enviamos tu pedido?</p>
+        <form id="form-envio" novalidate>
+          <div class="campo">
+            <label for="env-nombre">Nombre completo</label>
+            <input type="text" id="env-nombre" autocomplete="name" placeholder="Ej: Juan Pérez">
+            <div class="msg-error"></div>
+          </div>
+          <div class="campo">
+            <label for="env-telefono">Teléfono</label>
+            <input type="tel" id="env-telefono" autocomplete="tel" placeholder="Ej: 3001234567">
+            <div class="msg-error"></div>
+          </div>
+          <div class="campo">
+            <label for="env-direccion">Dirección</label>
+            <input type="text" id="env-direccion" autocomplete="street-address" placeholder="Ej: Calle 123 # 45-67">
+            <div class="msg-error"></div>
+          </div>
+          <div class="checkout-fila-doble">
+            <div class="campo">
+              <label for="env-ciudad">Ciudad</label>
+              <input type="text" id="env-ciudad" autocomplete="address-level2" placeholder="Ej: Bogotá">
+              <div class="msg-error"></div>
+            </div>
+            <div class="campo">
+              <label for="env-departamento">Departamento</label>
+              <input type="text" id="env-departamento" autocomplete="address-level1" placeholder="Ej: Cundinamarca">
+              <div class="msg-error"></div>
+            </div>
+          </div>
+          <div class="checkout-acciones">
+            <button type="submit" class="btn btn-primario">Continuar → Pago</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- PASO 2: Método de pago (pasos 6-7) -->
+      <div id="checkout-pago" class="checkout-seccion" hidden>
+        <h3 class="modal-titulo">💳 Método de pago</h3>
+        <p class="modal-subtitulo">Selecciona cómo quieres pagar.</p>
+
+        <div class="metodos-pago" id="metodos-pago" role="group" aria-label="Métodos de pago">
+          <label class="metodo-item">
+            <input type="radio" name="metodo-pago" value="tarjeta" checked>
+            <span class="metodo-contenido">
+              <span class="metodo-icono">💳</span>
+              <span class="metodo-texto">
+                <strong>Tarjeta crédito / débito</strong>
+                <small>Visa, Mastercard, Amex</small>
+              </span>
+            </span>
+          </label>
+          <label class="metodo-item">
+            <input type="radio" name="metodo-pago" value="nequi">
+            <span class="metodo-contenido">
+              <span class="metodo-icono">📱</span>
+              <span class="metodo-texto">
+                <strong>Nequi</strong>
+                <small>Pago desde tu app</small>
+              </span>
+            </span>
+          </label>
+          <label class="metodo-item">
+            <input type="radio" name="metodo-pago" value="pse">
+            <span class="metodo-contenido">
+              <span class="metodo-icono">🏦</span>
+              <span class="metodo-texto">
+                <strong>PSE</strong>
+                <small>Transferencia bancaria</small>
+              </span>
+            </span>
+          </label>
+          <label class="metodo-item">
+            <input type="radio" name="metodo-pago" value="contraentrega">
+            <span class="metodo-contenido">
+              <span class="metodo-icono">🏠</span>
+              <span class="metodo-texto">
+                <strong>Pago contraentrega</strong>
+                <small>Paga cuando recibas</small>
+              </span>
+            </span>
+          </label>
+        </div>
+
+        <!-- Campos extra para tarjeta -->
+        <div id="campos-tarjeta" class="campos-tarjeta">
+          <div class="campo">
+            <label for="tarjeta-num">Número de tarjeta</label>
+            <input type="text" id="tarjeta-num" placeholder="1234 5678 9012 3456" maxlength="19" autocomplete="cc-number">
+            <div class="msg-error"></div>
+          </div>
+          <div class="checkout-fila-doble">
+            <div class="campo">
+              <label for="tarjeta-exp">Vencimiento</label>
+              <input type="text" id="tarjeta-exp" placeholder="MM/AA" maxlength="5" autocomplete="cc-exp">
+              <div class="msg-error"></div>
+            </div>
+            <div class="campo">
+              <label for="tarjeta-cvv">CVV</label>
+              <input type="text" id="tarjeta-cvv" placeholder="123" maxlength="3" autocomplete="cc-csc">
+              <div class="msg-error"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="checkout-acciones checkout-acciones-doble">
+          <button type="button" class="btn btn-secundario" id="pago-volver">← Volver</button>
+          <button type="button" class="btn btn-primario" id="pago-continuar">Continuar → Resumen</button>
+        </div>
+      </div>
+
+      <!-- PASO 3: Resumen de compra (pasos 8-10) -->
+      <div id="checkout-resumen" class="checkout-seccion" hidden>
+        <h3 class="modal-titulo">📋 Resumen de la compra</h3>
+        <p class="modal-subtitulo">Revisa todo antes de confirmar.</p>
+
+        <div id="resumen-productos" class="resumen-productos"></div>
+
+        <div class="resumen-datos">
+          <div class="resumen-bloque">
+            <p class="resumen-bloque-titulo">📦 Dirección de envío</p>
+            <p id="resumen-direccion" class="resumen-bloque-contenido"></p>
+          </div>
+          <div class="resumen-bloque">
+            <p class="resumen-bloque-titulo">💳 Método de pago</p>
+            <p id="resumen-pago" class="resumen-bloque-contenido"></p>
+          </div>
+        </div>
+
+        <div class="resumen-totales">
+          <div class="carrito-resumen-fila"><span>Subtotal</span><span id="res-subtotal"></span></div>
+          <div class="carrito-resumen-fila"><span>Envío</span><span id="res-envio"></span></div>
+          <div class="carrito-resumen-fila carrito-total"><span>Total</span><span id="res-total"></span></div>
+        </div>
+
+        <!-- Paso 10: Confirmar compra -->
+        <div class="checkout-acciones checkout-acciones-doble">
+          <button type="button" class="btn btn-secundario" id="resumen-volver">← Volver</button>
+          <button type="button" class="btn btn-primario" id="btn-confirmar-compra">✔ Confirmar compra</button>
+        </div>
+      </div>
+
+      <!-- PASO procesando (pasos 11-12) -->
+      <div id="checkout-procesando" class="checkout-seccion checkout-procesando" hidden>
+        <div class="procesando-icono">⏳</div>
+        <p class="procesando-txt">Procesando tu pago...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Confirmación de compra (paso 13) -->
+  <div id="modal-compra-ok" class="modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="compra-ok-titulo">
+    <div class="modal-caja modal-conf" tabindex="-1">
+      <div class="conf-icono">🎉</div>
+      <h3 id="compra-ok-titulo" class="modal-titulo">¡Compra realizada!</h3>
+      <p class="modal-subtitulo" id="compra-ok-msg">Tu pedido fue registrado correctamente.</p>
+      <p id="compra-ok-numero" class="pedido-numero"></p>
+      <button type="button" class="btn btn-primario" id="btn-compra-ok-cerrar">Ver mis pedidos</button>
+    </div>
+  </div>
+
+  <!-- MODAL: Formulario de evaluación (pasos 5-9) -->
+  <div id="modal-evaluacion" class="modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="modal-eval-titulo">
+    <div class="modal-caja" tabindex="-1">
+      <button class="modal-cerrar" id="modal-eval-cerrar" aria-label="Cerrar">✕</button>
+
+      <!-- Paso 5: formulario -->
+      <div id="eval-paso-formulario">
+        <h3 id="modal-eval-titulo" class="modal-titulo">⭐ Evaluar producto</h3>
+        <p id="modal-eval-nombre" class="modal-subtitulo"></p>
+
+        <!-- Paso 6: Calificación con estrellas -->
+        <div class="eval-grupo">
+          <label class="eval-label">Calificación <span class="eval-req">*</span></label>
+          <div class="estrellas-input" id="estrellas-input" role="group" aria-label="Selecciona una calificación del 1 al 5">
+            <button type="button" class="estrella" data-val="1" aria-label="1 estrella">★</button>
+            <button type="button" class="estrella" data-val="2" aria-label="2 estrellas">★</button>
+            <button type="button" class="estrella" data-val="3" aria-label="3 estrellas">★</button>
+            <button type="button" class="estrella" data-val="4" aria-label="4 estrellas">★</button>
+            <button type="button" class="estrella" data-val="5" aria-label="5 estrellas">★</button>
+          </div>
+          <p id="eval-error-estrellas" class="eval-error" hidden>Selecciona una calificación.</p>
+        </div>
+
+        <!-- Paso 7: Comentario -->
+        <div class="eval-grupo">
+          <label class="eval-label" for="eval-comentario">Comentario <span class="eval-req">*</span></label>
+          <textarea id="eval-comentario" class="eval-textarea" rows="4"
+            placeholder="Cuéntanos tu experiencia con este producto..." maxlength="500"></textarea>
+          <p class="eval-contador"><span id="eval-chars">0</span>/500</p>
+          <p id="eval-error-comentario" class="eval-error" hidden>Escribe un comentario.</p>
+        </div>
+
+        <!-- Paso 8: Revisión antes de enviar -->
+        <div id="eval-preview" class="eval-preview" hidden>
+          <p class="eval-preview-titulo">Vista previa de tu evaluación:</p>
+          <div id="eval-preview-contenido"></div>
+        </div>
+
+        <div class="eval-acciones">
+          <button type="button" class="btn btn-secundario" id="btn-eval-revisar">👁 Revisar</button>
+          <!-- Paso 9: Confirmar envío -->
+          <button type="button" class="btn btn-primario" id="btn-eval-confirmar" disabled>✔ Confirmar envío</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Confirmación (paso 11) -->
+  <div id="modal-confirmacion" class="modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="conf-titulo">
+    <div class="modal-caja modal-conf" tabindex="-1">
+      <div class="conf-icono">✅</div>
+      <h3 id="conf-titulo" class="modal-titulo">¡Evaluación registrada!</h3>
+      <p class="modal-subtitulo">Gracias por tu opinión. Tu evaluación ya está visible en el producto.</p>
+      <button type="button" class="btn btn-primario" id="btn-conf-cerrar">Aceptar</button>
+    </div>
+  </div>
+
+</main>
+
+<!-- Botón global de retroceso: vuelve a la vista anterior.
+     Se muestra en todas las pantallas excepto en el inicio.
+     También funciona con el atajo Alt + ← -->
+<button id="btn-atras-global" class="btn-atras-global" type="button"
+        aria-label="Volver a la pantalla anterior" aria-keyshortcuts="Alt+ArrowLeft" hidden>
+  <span class="atras-flecha" aria-hidden="true">←</span>
+  <span class="atras-texto">Atrás</span>
+</button>
+
+<script src="scritp.js"></script>
+</body>
+</html>
